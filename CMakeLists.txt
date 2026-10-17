@@ -54,6 +54,7 @@ include_directories(
 # ---------------------------------------------------------
 add_library(gpu_roofline_kernels STATIC
     src/kernels/matmul_naive.cu
+    src/kernels/matmul_tiled.cu
 )
 
 target_include_directories(gpu_roofline_kernels PUBLIC
@@ -61,6 +62,26 @@ target_include_directories(gpu_roofline_kernels PUBLIC
 )
 
 set_target_properties(gpu_roofline_kernels PROPERTIES
+    CUDA_STANDARD 17
+    CUDA_STANDARD_REQUIRED ON
+)
+
+# ---------------------------------------------------------
+# Benchmark Targets
+# ---------------------------------------------------------
+add_executable(benchmark_matmul
+    src/benchmarks/benchmark_matmul.cu
+)
+
+target_include_directories(benchmark_matmul PRIVATE
+    ${PROJECT_SOURCE_DIR}/include
+)
+
+target_link_libraries(benchmark_matmul PRIVATE
+    gpu_roofline_kernels
+)
+
+set_target_properties(benchmark_matmul PROPERTIES
     CUDA_STANDARD 17
     CUDA_STANDARD_REQUIRED ON
 )
@@ -74,3 +95,4 @@ if(BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)
 endif()
+
