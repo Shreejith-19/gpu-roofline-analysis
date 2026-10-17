@@ -38,6 +38,35 @@ void launchMatmulNaive(
 );
 
 /**
+ * @brief Launches the shared-memory tiled matrix multiplication kernel C = A * B.
+ * 
+ * Sub-matrices (tiles) of A and B are cooperatively loaded from global memory into
+ * fast on-chip __shared__ memory before performing multiply-accumulate operations.
+ * Threads synchronize using __syncthreads() after loading each tile and after computation.
+ * 
+ * Supports arbitrary, non-multiple matrix dimensions M, N, K via safe boundary clamping.
+ * 
+ * @param d_A Pointer to device memory for input matrix A [M x K].
+ * @param d_B Pointer to device memory for input matrix B [K x N].
+ * @param d_C Pointer to device memory for output matrix C [M x N].
+ * @param M Number of rows in A and C.
+ * @param N Number of columns in B and C.
+ * @param K Number of columns in A and rows in B.
+ * @param tileDim Tile dimension (e.g., 16 for 16x16 tiles, or 32 for 32x32 tiles, default: 16).
+ * @param stream CUDA stream for asynchronous launch (default: 0).
+ */
+void launchMatmulTiled(
+    const float* d_A,
+    const float* d_B,
+    float* d_C,
+    int M,
+    int N,
+    int K,
+    int tileDim = 16,
+    cudaStream_t stream = 0
+);
+
+/**
  * @brief CPU reference implementation of single-precision matrix multiplication C = A * B.
  * Used for correctness validation against GPU results.
  * 
