@@ -50,6 +50,22 @@ include_directories(
 )
 
 # ---------------------------------------------------------
+# Kernels Library Target
+# ---------------------------------------------------------
+add_library(gpu_roofline_kernels STATIC
+    src/kernels/matmul_naive.cu
+)
+
+target_include_directories(gpu_roofline_kernels PUBLIC
+    ${PROJECT_SOURCE_DIR}/include
+)
+
+set_target_properties(gpu_roofline_kernels PROPERTIES
+    CUDA_STANDARD 17
+    CUDA_STANDARD_REQUIRED ON
+)
+
+# ---------------------------------------------------------
 # Testing
 # ---------------------------------------------------------
 option(BUILD_TESTS "Build test suite" ON)
