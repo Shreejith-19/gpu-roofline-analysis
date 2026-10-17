@@ -48,21 +48,54 @@ def plot_roofline(csv_file, output_path, peak_gflops=7200.0, peak_bw_gbs=192.0):
     # 4. Parse CSV data points if file exists
     if os.path.exists(csv_file):
         try:
+            naive_oi, naive_perf, naive_labels = [], [], []
+            tiled_oi, tiled_perf, tiled_labels = [], [], []
+
             with open(csv_file, 'r') as f:
                 reader = csv.DictReader(f)
                 for row in reader:
                     kernel = row['KernelName']
                     oi = float(row['OperationalIntensity'])
                     perf = float(row['AchievedGflops'])
-                    ax.scatter(oi, perf, s=80, zorder=5, label=f"Kernel: {kernel}")
+                    
+                    if "Naive" in kernel:
+                        naive_oi.append(oi)
+                        naive_perf.append(perf)
+                        naive_labels.append(kernel.replace("Naive_", ""))
+                    elif "Tiled" in kernel:
+                        tiled_oi.append(oi)
+                        tiled_perf.append(perf)
+                        tiled_labels.append(kernel.replace("Tiled16_", ""))
+
+            if naive_oi:
+                ax.scatter(naive_oi, naive_perf, color='#E65100', marker='o', s=90, 
+                           edgecolors='black', linewidth=1.2, zorder=5, label="Naive Kernel (Global Only)")
+            if tiled_oi:
+                ax.scatter(tiled_oi, tiled_perf, color='#0288D1', marker='s', s=90, 
+                           edgecolors='black', linewidth=1.2, zorder=6, label="Tiled Kernel (16x16 Shared)")
+
+            # Connect matched points with light arrows to illustrate speedup
+            for i in range(min(len(naive_oi), len(tiled_oi))):
+                if naive_oi[i] == tiled_oi[i]:
+                    ax.annotate('', xy=(tiled_oi[i], tiled_perf[i]), xytext=(naive_oi[i], naive_perf[i]),
+                                arrowprops=dict(arrowstyle="->", color="gray", lw=1, alpha=0.6))
+                    # Annotate key matrix sizes
+                    dim_str = naive_labels[i]
+                    if dim_str in ["64x64", "256x256", "1024x1024", "2048x2048"]:
+                        ax.text(tiled_oi[i] * 1.05, tiled_perf[i] * 1.05, dim_str,
+                                fontsize=8, color="#37474F", weight='semibold')
+
         except Exception as e:
             print(f"[WARN] Failed to parse {csv_file}: {e}")
 
-    ax.set_title("NVIDIA GPU Empirical Roofline Model", fontsize=14, pad=15, weight='bold')
+    ax.set_title("NVIDIA GeForce RTX 3050 Empirical Roofline: Naive vs Tiled Matmul", 
+                 fontsize=13, pad=15, weight='bold')
     ax.set_xlabel("Operational Intensity (FLOPs / Byte)", fontsize=11, labelpad=10)
-    ax.set_ylabel("Performance (GFLOP/s)", fontsize=11, labelpad=10)
+    ax.set_ylabel("Attainable Performance (GFLOP/s)", fontsize=11, labelpad=10)
+    ax.set_xlim([0.05, 1000])
+    ax.set_ylim([1, 12000])
     ax.grid(True, which='both', linestyle=':', alpha=0.6)
-    ax.legend(loc='lower right', frameon=True)
+    ax.legend(loc='lower right', frameon=True, fontsize=10)
 
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     plt.tight_layout()
