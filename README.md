@@ -364,11 +364,3 @@ Measured empirical baselines on NVIDIA GeForce RTX 3050 Laptop GPU (CUDA 13.4, D
    The GA107 GPU features 16 SMs. Thread block grids should always be sized as integer multiples of 16 blocks to prevent "tail-wave" imbalance, where a final partial wave executes on a fraction of the SMs while the remainder sit idle.
 
 ---
-
-## Authors & Acknowledgments
-
-- **Developed by**: Shreejith
-- **Repository**: [gpu-roofline-analysis](https://github.com/Shreejith-19/gpu-roofline-analysis)
-- **References**:
-  - Williams, S., Waterman, A., & Patterson, D. (2009). *Roofline: An insightful visual performance model for multicore architectures.* Communications of the ACM.
-  - NVIDIA Corporation. *CUDA C++ Programming Guide* & *NVIDIA Nsight Compute CLI Documentation*.
