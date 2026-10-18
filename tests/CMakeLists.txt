@@ -47,3 +47,41 @@ set_target_properties(test_matmul_tiled PROPERTIES
 )
 
 add_test(NAME TestMatmulTiled COMMAND test_matmul_tiled)
+
+# Parallel Sum Reduction Unit & Verification Tests
+add_executable(test_reduce_sum test_reduce_sum.cu)
+
+target_include_directories(test_reduce_sum PRIVATE
+    ${PROJECT_SOURCE_DIR}/include
+)
+
+target_link_libraries(test_reduce_sum PRIVATE
+    gpu_roofline_kernels
+)
+
+set_target_properties(test_reduce_sum PROPERTIES
+    CUDA_STANDARD 17
+    CUDA_STANDARD_REQUIRED ON
+)
+
+add_test(NAME TestReduceSum COMMAND test_reduce_sum)
+
+# Parallel Max Reduction Unit & Verification Tests
+add_executable(test_reduce_max test_reduce_max.cu)
+
+target_include_directories(test_reduce_max PRIVATE
+    ${PROJECT_SOURCE_DIR}/include
+)
+
+target_link_libraries(test_reduce_max PRIVATE
+    gpu_roofline_kernels
+)
+
+set_target_properties(test_reduce_max PROPERTIES
+    CUDA_STANDARD 17
+    CUDA_STANDARD_REQUIRED ON
+)
+
+add_test(NAME TestReduceMax COMMAND test_reduce_max)
+
+

@@ -55,6 +55,8 @@ include_directories(
 add_library(gpu_roofline_kernels STATIC
     src/kernels/matmul_naive.cu
     src/kernels/matmul_tiled.cu
+    src/kernels/reduce_sum.cu
+    src/kernels/reduce_max.cu
 )
 
 target_include_directories(gpu_roofline_kernels PUBLIC
@@ -82,6 +84,40 @@ target_link_libraries(benchmark_matmul PRIVATE
 )
 
 set_target_properties(benchmark_matmul PROPERTIES
+    CUDA_STANDARD 17
+    CUDA_STANDARD_REQUIRED ON
+)
+
+add_executable(benchmark_reduce
+    src/benchmarks/benchmark_reduce.cu
+)
+
+target_include_directories(benchmark_reduce PRIVATE
+    ${PROJECT_SOURCE_DIR}/include
+)
+
+target_link_libraries(benchmark_reduce PRIVATE
+    gpu_roofline_kernels
+)
+
+set_target_properties(benchmark_reduce PROPERTIES
+    CUDA_STANDARD 17
+    CUDA_STANDARD_REQUIRED ON
+)
+
+add_executable(benchmark_reduce_max
+    src/benchmarks/benchmark_reduce_max.cu
+)
+
+target_include_directories(benchmark_reduce_max PRIVATE
+    ${PROJECT_SOURCE_DIR}/include
+)
+
+target_link_libraries(benchmark_reduce_max PRIVATE
+    gpu_roofline_kernels
+)
+
+set_target_properties(benchmark_reduce_max PROPERTIES
     CUDA_STANDARD 17
     CUDA_STANDARD_REQUIRED ON
 )
